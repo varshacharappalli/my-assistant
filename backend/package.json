@@ -9,11 +9,11 @@
   },
   "name": "backend",
   "version": "1.0.0",
-  "main": "index.js",
-  "devDependencies": {},
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+  "main": "src/index.js",
+  "devDependencies": {},"scripts": {
+    "dev": "nodemon src/index.js"
   },
+  "type": "module",
   "keywords": [],
   "author": "",
   "license": "ISC",
