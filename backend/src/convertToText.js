@@ -1,33 +1,47 @@
-const API_KEY=process.env.ASSEMBLY_API_KEY;
+import axios from "axios";
+import fs from "fs";
+import FormData from "form-data";
+import dotenv from 'dotenv';
 
-const uploadFile=async(filePath)=>{
+dotenv.config({ path: 'src/.env' });
+
+const API_KEY = process.env.ASSEMBLY_API_KEY;
+
+const uploadFile = async (file) => {
     console.log("Uploading file!");
 
-    const response=await axios.post(
+    const formData = new FormData();
+
+    if (Buffer.isBuffer(file)) {
+        formData.append("file", file, { filename: "audio.mp3" }); // Name the file properly
+    } else {
+        formData.append("file", fs.createReadStream(file));
+    }
+
+    const response = await axios.post(
         "https://api.assemblyai.com/v2/upload",
-        fs.createReadStream(filePath),
+        formData,
         {
             headers: {
+                ...formData.getHeaders(),
                 "authorization": API_KEY,
-                "Content-Type": "application/octet-stream"
             },
-            timeout: 60000
+            timeout: 60000,
         }
+    );
 
-    )
     console.log("File uploaded:", response.data);
     return response.data.upload_url;
-}
+};
+
 
 const transcribeAudio = async (audioUrl) => {
-    const selectedLanguage = state.lang || "German";
-    const languageCode = languageMap[selectedLanguage] || "de";
     console.log("Started transcription");
     const response = await axios.post(
         "https://api.assemblyai.com/v2/transcript",
         { 
             audio_url: audioUrl,
-            language_code: languageCode
+            language_code: 'en'
         },
         {
             headers: { authorization: API_KEY },
@@ -59,10 +73,9 @@ const getTranscript=async(transcriptId)=>{
     }
 }
 
-export const convertToText=async(filePath)=>{
-
+export const convertToText = async (input) => {
     try {
-        const audioUrl = await uploadFile(filePath);
+        const audioUrl = await uploadFile(input);
         const transcriptId = await transcribeAudio(audioUrl);
         const text = await getTranscript(transcriptId);
 
@@ -70,5 +83,6 @@ export const convertToText=async(filePath)=>{
         return text;
     } catch (error) {
         console.error("Error:", error);
+        return null;
     }
-}
+};

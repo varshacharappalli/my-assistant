@@ -1,6 +1,7 @@
 import nlp from "compromise";
 
 const parseCommand = async (text) => {
+    text = String(text).toLowerCase();
     text = text.toLowerCase();
     const doc = nlp(text);
 
