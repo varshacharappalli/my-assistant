@@ -13,7 +13,7 @@ const uploadFile = async (file) => {
     const formData = new FormData();
 
     if (Buffer.isBuffer(file)) {
-        formData.append("file", file, { filename: "audio.mp3" }); // Name the file properly
+        formData.append("file", file, { filename: "audio.mp3" }); 
     } else {
         formData.append("file", fs.createReadStream(file));
     }

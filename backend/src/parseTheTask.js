@@ -1,30 +1,27 @@
 import nlp from "compromise";
 
 const parseCommand = async (text) => {
-    text = String(text).toLowerCase();
-    text = text.toLowerCase();
+    text = String(text).toLowerCase().trim(); 
+
     const doc = nlp(text);
+    let task = null, website = null, query = null, username = null, password = null;
 
-    let task = null;
-    let website = null;
-    let query = null;
-
+    // Extracting verbs
     const verbs = doc.verbs().out("array");
 
-    if (verbs.includes("open")) task = "open";
-    if (verbs.includes("search") || verbs.includes("find") || verbs.includes("look up")) task = "search";
-    if (verbs.includes("log in") || verbs.includes("sign in")) task = "login";
-    if (verbs.includes("download") || verbs.includes("save")) task = "download";
+    if (/open\b/.test(text)) task = "open";
+    if (/search\b|find\b|look up\b/.test(text)) task = "search";
+    if (/log in\b|sign in\b/.test(text)) task = "login";
+    if (/download\b|save\b/.test(text)) task = "download";
 
     const knownWebsites = ["google", "youtube", "facebook", "twitter", "wikipedia", "bing"];
     knownWebsites.forEach(site => {
         if (text.includes(site)) website = site;
     });
 
-    const match = text.match(/(search|find|look up) (for )?(.*)/);
-    if (match) query = match[3];
+    const searchMatch = text.match(/(?:search|find|look up) (for )?(.*)/);
+    if (searchMatch) query = searchMatch[2]?.trim() || null;
 
-    let username = null, password = null;
     const loginMatch = text.match(/log in to (\w+) with username (\w+) and password (\w+)/);
     if (loginMatch) {
         website = loginMatch[1];
